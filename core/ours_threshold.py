@@ -181,6 +181,37 @@ def fedavg(weights, clientObjs, server):
 
     return clientObjs, server
 
+def calculate_ind_ood_acc(client_acc, clients):
+    acc_matrix = np.array(client_acc, dtype=float)
+    test_nums = np.array([len(client.test_dataset) for client in clients], dtype=float)
+    ind_acc = np.sum(np.diag(acc_matrix) * test_nums) / np.sum(test_nums)
+
+    ood_acc_sum = 0
+    ood_weight_sum = 0
+    for model_id in range(len(clients)):
+        for test_id in range(len(clients)):
+            if model_id == test_id:
+                continue
+            ood_acc_sum += acc_matrix[model_id, test_id] * test_nums[test_id]
+            ood_weight_sum += test_nums[test_id]
+    ood_acc = ood_acc_sum / ood_weight_sum if ood_weight_sum > 0 else 0
+    return round(ind_acc, 4), round(ood_acc, 4)
+
+def dump_result_record(record, f):
+    f.write('{\n')
+    items = list(record.items())
+    for idx, (key, value) in enumerate(items):
+        comma = ',' if idx < len(items) - 1 else ''
+        if key == 'acc':
+            f.write(f'  "{key}": [\n')
+            for row_idx, row in enumerate(value):
+                row_comma = ',' if row_idx < len(value) - 1 else ''
+                f.write(f'    {json.dumps(row)}{row_comma}\n')
+            f.write(f'  ]{comma}\n')
+        else:
+            f.write(f'  "{key}": {json.dumps(value)}{comma}\n')
+    f.write('}\n')
+
 def run(args):
     # initialize server
     server = Server(args)
@@ -228,6 +259,13 @@ def run(args):
         total_train_time += train_time
         print(f'Round {r} train time cost: {train_time:.2f}s')
 
+        start_time = time.time()
+        for id in range(len(clients)):
+            clients[id].fine_tune(global_round=r + 1)
+        local_train_time = time.time() - start_time
+        total_train_time += local_train_time
+        print(f'Round {r} local adaptation time cost: {local_train_time:.2f}s')
+
         print(f'==================== Round {r} ====================')
         # cal val loss
         val_loss = 0
@@ -254,13 +292,14 @@ def run(args):
             for id, client in enumerate(clients):
                 accs = client.test_on_all_clients(clients)
                 client_acc.append(accs)
+            ind_acc, ood_acc = calculate_ind_ood_acc(client_acc, clients)
+            print(f'Round {r} ind acc: {ind_acc:.4f}, ood acc: {ood_acc:.4f}')
 
             test_time = time.time() - start_time
             print(f'Round {r} test time cost: {test_time:.2f}s')
             total_test_time += test_time
             with open(f'./results/ours/{args.image_encoder_name}_{args.dataset}_sub{args.subset_size}_threshold_{args.threshold}.json', 'a+') as f:
-                json.dump({'round':r, 'acc': client_acc, 'total_test_time': total_test_time, 'total_train_time': total_train_time, 'converge_round': converge_rounds}, f)
-                f.write('\n')
+                dump_result_record({'round':r, 'acc': client_acc, 'ind_acc': ind_acc, 'ood_acc': ood_acc, 'total_test_time': total_test_time, 'total_train_time': total_train_time, 'converge_round': converge_rounds}, f)
 
             if early_stop:
                 break

@@ -45,6 +45,8 @@ class Client(nn.Module):
         self.kdw = args.kd_loss_weight
         self.sra = args.sample_ratio
         self.sram = args.sample_ratio_method
+        self.prototype_save_path = None
+        self.prototype_audit_path = None
 
         # for auto test data split
         self.domain_label = None
@@ -187,9 +189,17 @@ class Client(nn.Module):
                     pbar.set_description\
                         (f'Client {self.id}: [{self.data_name}], Local Epoch: {epoch}, Iter:{i}, Loss: {round(loss.item(), 5)}, lr: {lr}')
 
-            self.protos = agg_func(protos, sample_ratio=self.sra, sample_method=self.sram)
+            self.protos, sample_stats = agg_func(
+                protos,
+                sample_ratio=self.sra,
+                sample_method=self.sram,
+                return_stats=True
+            )
+            self.log_and_save_prototypes(protos, sample_stats, global_round, epoch)
 
             self.scheduler.step()
+
+        self.model.base.local_adapter.load_state_dict(self.model.base.adapter.state_dict())
 
     def set_protos(self, global_protos):
         self.global_protos = global_protos
@@ -242,11 +252,10 @@ class Client(nn.Module):
         dir = f"../weights/{args.image_encoder_name}/{args.dataset}_sub{args.subset_size}_{algo}"
         config = generate_json_config(args)
         if algo != 'local':
-            # algorithm except local use 'adapter' as the global adapter to train and aggregate during the federated learning
             path = f"{dir}/client_{self.id}_global_adapter.pth"
-            torch.save(self.model.base.adapter.state_dict(), path)
+            torch.save(self.model.base.global_adapter.state_dict(), path)
             path = f"{dir}/client_{self.id}_local_adapter.pth"
-            torch.save(self.model.base.local_adapter.state_dict(), path)
+            torch.save(self.model.base.adapter.state_dict(), path)
         else:
             path = f"{dir}/client_{self.id}_adapter.pth"
             torch.save(self.model.base.adapter.state_dict(), path)
@@ -255,11 +264,77 @@ class Client(nn.Module):
         with open(f"{dir}/config.json", 'w+') as f:
             json.dump(config, f)
 
-def agg_func(protos, sample_ratio=0.9, sample_method='cluster'):
+    def log_and_save_prototypes(self, raw_protos, sample_stats, global_round, epoch):
+        raw_counts = {
+            str(label): stats["raw_count"]
+            for label, stats in sample_stats.items()
+        }
+        prototype_norms = {}
+        uploaded_counts = {}
+        for label, prototype in self.protos.items():
+            if prototype.dim() == 1:
+                norms = torch.norm(prototype.detach()).view(1)
+                uploaded_count = 1
+            else:
+                norms = torch.norm(prototype.detach(), dim=1)
+                uploaded_count = prototype.shape[0]
+            prototype_norms[str(label)] = {
+                "values": [round(x, 6) for x in norms.cpu().tolist()],
+                "mean": round(norms.mean().item(), 6),
+            }
+            uploaded_counts[str(label)] = uploaded_count
+
+        total_uploaded = sum(uploaded_counts.values())
+        round_tag = "none" if global_round is None else str(global_round)
+        save_dir = (
+            f"./results/prototypes/{self.args.image_encoder_name}_"
+            f"{self.args.dataset}_sub{self.args.subset_size}_"
+            f"sra{self.sra}_sram{self.sram}"
+        )
+        os.makedirs(save_dir, exist_ok=True)
+        self.prototype_save_path = (
+            f"{save_dir}/client_{self.id}_{self.data_name}_"
+            f"round_{round_tag}_epoch_{epoch}.pth"
+        )
+        self.prototype_audit_path = (
+            f"{save_dir}/client_{self.id}_{self.data_name}_"
+            f"round_{round_tag}_epoch_{epoch}.json"
+        )
+
+        cpu_protos = {label: proto.detach().cpu() for label, proto in self.protos.items()}
+        torch.save(cpu_protos, self.prototype_save_path)
+
+        audit = {
+            "client_id": self.id,
+            "client_name": self.data_name,
+            "round": global_round,
+            "epoch": epoch,
+            "sample_method": self.sram,
+            "sample_ratio": self.sra,
+            "raw_feature_counts": raw_counts,
+            "sampled_prototype_counts": sample_stats,
+            "uploaded_prototype_counts": uploaded_counts,
+            "total_uploaded_prototypes": total_uploaded,
+            "prototype_norms": prototype_norms,
+            "prototype_save_path": self.prototype_save_path,
+        }
+        with open(self.prototype_audit_path, "w+") as f:
+            json.dump(audit, f, indent=2)
+
+        print(f"Client {self.id} [{self.data_name}] raw feature counts by class: {raw_counts}")
+        print(f"Client {self.id} [{self.data_name}] sampled prototype counts by class: {sample_stats}")
+        print(f"Client {self.id} [{self.data_name}] prototype norm by class: {prototype_norms}")
+        print(f"Client {self.id} [{self.data_name}] total uploaded prototypes: {total_uploaded}")
+        print(f"Client {self.id} [{self.data_name}] prototype file saved to: {self.prototype_save_path}")
+
+def agg_func(protos, sample_ratio=0.9, sample_method='cluster', return_stats=False):
     """
     use svd to aggregate the prototypes
     """
+    sample_stats = {}
     for [label, proto_list] in protos.items():
+        raw_count = len(proto_list)
+        cluster_num = None
         if len(proto_list) > 1:
             prototype = proto_list[0].data
             for i in proto_list[1:]:
@@ -273,13 +348,28 @@ def agg_func(protos, sample_ratio=0.9, sample_method='cluster'):
             elif sample_method == 'random':
                 prototype = random_sample(prototype.T, sample_ratio).T
             elif sample_method == 'cluster':
+                cluster_num = math.ceil(raw_count * sample_ratio)
                 prototype = cluster_sample(prototype.T, sample_ratio).T
             elif sample_method == 'mixed':
+                cluster_num = math.ceil(raw_count * (sample_ratio / 2))
                 prototype = mixed_sample(prototype.T, sample_ratio).T
         else:
             prototype = proto_list[0]
         protos[label] = prototype
+        sampled_count = 1 if prototype.dim() == 1 else prototype.shape[0]
+        sample_stats[str(label)] = {
+            "method": sample_method,
+            "sample_method": sample_method,
+            "sample_ratio": sample_ratio,
+            "raw_count": raw_count,
+            "raw_feature_count": raw_count,
+            "sampled_count": sampled_count,
+            "final_prototype_count": sampled_count,
+            "cluster_num": cluster_num,
+        }
     # protos[label] = prototype (embedding_nums, feature_dim)
+    if return_stats:
+        return protos, sample_stats
     return protos
 
 # some more sampling methods
