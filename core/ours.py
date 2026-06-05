@@ -196,10 +196,13 @@ def fedavg(weights, clientObjs, server):
 
     return clientObjs, server
 
-def calculate_ind_ood_acc(client_acc, clients):
+def calculate_summary_acc(client_acc, clients):
     acc_matrix = np.array(client_acc, dtype=float)
     test_nums = np.array([len(client.test_dataset) for client in clients], dtype=float)
     ind_acc = np.sum(np.diag(acc_matrix) * test_nums) / np.sum(test_nums)
+    client_avg_accs = np.sum(acc_matrix * test_nums, axis=1) / np.sum(test_nums)
+    worst_client_acc = np.min(client_avg_accs)
+    client_std = np.std(client_avg_accs)
 
     ood_acc_sum = 0
     ood_weight_sum = 0
@@ -210,7 +213,7 @@ def calculate_ind_ood_acc(client_acc, clients):
             ood_acc_sum += acc_matrix[model_id, test_id] * test_nums[test_id]
             ood_weight_sum += test_nums[test_id]
     ood_acc = ood_acc_sum / ood_weight_sum if ood_weight_sum > 0 else 0
-    return round(ind_acc, 4), round(ood_acc, 4)
+    return round(ind_acc, 4), round(ood_acc, 4), round(worst_client_acc, 4), round(client_std, 4)
 
 def dump_result_record(record, f):
     f.write('{\n')
@@ -287,14 +290,14 @@ def run(args):
     for id, client in enumerate(clients):
         accs = client.test_on_all_clients(clients)
         client_acc.append(accs)
-    ind_acc, ood_acc = calculate_ind_ood_acc(client_acc, clients)
-    print(f'ind acc: {ind_acc:.4f}, ood acc: {ood_acc:.4f}')
+    ind_acc, ood_acc, worst_client_acc, client_std = calculate_summary_acc(client_acc, clients)
+    print(f'ind acc: {ind_acc:.4f}, ood acc: {ood_acc:.4f}, worst client acc: {worst_client_acc:.4f}, client std: {client_std:.4f}')
 
     test_time = time.time() - start_time
     print(f'test time cost: {test_time:.2f}s')
     total_test_time += test_time
     with open(f'./results/ours/{args.image_encoder_name}_{args.dataset}_sub{args.subset_size}_sra{args.sample_ratio}_sram{args.sample_ratio_method}.json', 'a+') as f:
-        dump_result_record({'round':0, 'acc': client_acc, 'ind_acc': ind_acc, 'ood_acc': ood_acc, 'total_test_time': total_test_time, 'total_train_time': total_train_time}, f)
+        dump_result_record({'round':0, 'acc': client_acc, 'ind_acc': ind_acc, 'ood_acc': ood_acc, 'worst_client_acc': worst_client_acc, 'client_std': client_std, 'total_test_time': total_test_time, 'total_train_time': total_train_time}, f)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='DomainFL')

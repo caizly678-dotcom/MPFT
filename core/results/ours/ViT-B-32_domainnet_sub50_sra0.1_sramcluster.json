@@ -11,6 +11,8 @@
   ],
   "ind_acc": 82.8951,
   "ood_acc": 80.5731,
+  "worst_client_acc": 80.6164,
+  "client_std": 0.22,
   "total_test_time": 207.01037621498108,
   "total_train_time": 120.41532278060913
 }
