@@ -21,48 +21,39 @@ warnings.simplefilter("ignore")
 torch.manual_seed(1)
 torch.cuda.manual_seed(1) if torch.cuda.is_available() else None
 
+
 def generate_protos_training_data(uploaded_protos, batchsize=10):
     classes = uploaded_protos[0].keys()
     protos = []
     labels = []
-    # proto in every client
+
     for proto in uploaded_protos:
-        # proto in every class
         for c in classes:
             protos_class_c = proto[c]
             protos.append(protos_class_c)
-            # labels.append(c)
-            labels.extend([c]*protos_class_c.shape[0])
+            labels.extend([c] * protos_class_c.shape[0])
 
-    # generate batched data
     protos = torch.vstack(protos)
     labels = torch.tensor(labels, dtype=torch.long)
-    print('protos:', protos.shape)
-    print('labels:', labels.shape)
-    total_protos = protos.shape[0]
 
-    # shuffle the training data
+    total_protos = protos.shape[0]
     perm = torch.randperm(total_protos)
-    protos = protos[perm, :]
+    protos = protos[perm]
     labels = labels[perm]
 
-    # calculate the number of batches
     max_full_batches = total_protos // batchsize
-    new_total_protos = max_full_batches * batchsize
+    new_total = max_full_batches * batchsize
 
-    # drop last
-    protos = protos[:new_total_protos]
-    labels = labels[:new_total_protos]
-
+    protos = protos[:new_total]
+    labels = labels[:new_total]
 
     protos = protos.view(-1, batchsize, protos.shape[-1])
     labels = labels.view(-1, batchsize)
 
-    # generate training data
     training_data = []
     for i in range(protos.shape[0]):
         training_data.append((protos[i], labels[i]))
-    # print('training_data:', training_data)
+
     return training_data
 
 def send_adaptive_global_adapter(global_adapter, clientObjs):
@@ -119,7 +110,14 @@ def server_adative_training(training_data, server, threshold=0.001, num_losses=2
             print(f'exceed max epochs {server.max_epochs}')
             break
 
-    return server.image_encoder.global_adapter
+    train_metrics = {
+        "server_epochs": convergence_epochs,
+        "loss_last": float(losses[-1]) if losses else None,
+        "loss_std_last": float(np.std(losses[-num_losses:])) if losses else None,
+        "num_batches": len(training_data),
+    }
+
+    return server.image_encoder.global_adapter, train_metrics
 
 def receive_protos(clients):
     uploaded_ids = []
@@ -128,6 +126,183 @@ def receive_protos(clients):
         uploaded_ids.append(client.id)
         uploaded_protos.append(client.protos)
     return uploaded_protos
+
+def save_jsonl(path, record):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a+", encoding="utf-8") as f:
+        json.dump(record, f, ensure_ascii=False)
+        f.write("\n")
+
+def log_uploaded_proto_stats(uploaded_protos, save_path=None):
+    """
+    uploaded_protos:
+        list[dict[label -> Tensor[num_proto, dim]]]
+    """
+    stats = {
+        "num_clients": len(uploaded_protos),
+        "clients": [],
+        "total_num_protos": 0,
+    }
+
+    for client_id, proto_dict in enumerate(uploaded_protos):
+        client_stat = {
+            "client_id": client_id,
+            "num_classes": len(proto_dict),
+            "class_stats": {},
+            "num_protos": 0,
+        }
+
+        for label, protos in proto_dict.items():
+            if protos.dim() == 1:
+                protos = protos.unsqueeze(0)
+            protos_cpu = protos.detach().float().cpu()
+            num_proto = int(protos_cpu.shape[0])
+            dim = int(protos_cpu.shape[1])
+
+            norms = protos_cpu.norm(dim=1)
+            class_stat = {
+                "num_proto": num_proto,
+                "dim": dim,
+                "mean_norm": float(norms.mean().item()),
+                "std_norm": float(norms.std().item()) if num_proto > 1 else 0.0,
+            }
+
+            client_stat["class_stats"][int(label)] = class_stat
+            client_stat["num_protos"] += num_proto
+
+        stats["total_num_protos"] += client_stat["num_protos"]
+        stats["clients"].append(client_stat)
+
+    print(
+        f"[ProtoStats] clients={stats['num_clients']}, "
+        f"total_protos={stats['total_num_protos']}"
+    )
+
+    if save_path is not None:
+        save_jsonl(save_path, {"type": "uploaded_proto_stats", "stats": stats})
+
+    return stats
+
+def get_text_anchors_from_global_head(server):
+    """
+    使用 global classification head 的权重作为 text anchors。
+    注意：global_cls_head.weight 可能带 logit_scale，因此这里做 normalize。
+    """
+    text_anchors = server.global_cls_head.weight.detach().clone()
+    text_anchors = torch.nn.functional.normalize(text_anchors.float(), dim=-1)
+    return text_anchors
+
+def compute_proto_text_drift(uploaded_protos, text_anchors):
+    """
+    计算每个 client / class 的 prototype-text drift.
+
+    return:
+        drift_stats: dict
+    """
+    text_anchors = text_anchors.detach().float().cpu()
+    text_anchors = torch.nn.functional.normalize(text_anchors, dim=-1)
+
+    all_drifts = []
+    client_drifts = {}
+
+    for client_id, proto_dict in enumerate(uploaded_protos):
+        per_client_drifts = []
+        per_class = {}
+
+        for label, protos in proto_dict.items():
+            label_int = int(label)
+
+            if protos.dim() == 1:
+                protos = protos.unsqueeze(0)
+            p = protos.detach().float().cpu()
+            p = torch.nn.functional.normalize(p, dim=-1)
+
+            if label_int >= text_anchors.shape[0]:
+                print(f"[Warning] label {label_int} out of text_anchors range")
+                continue
+
+            t = text_anchors[label_int].view(1, -1)
+
+            cosine = (p * t).sum(dim=-1)
+            drift = 1.0 - cosine
+
+            mean_drift = float(drift.mean().item())
+            std_drift = float(drift.std().item()) if drift.numel() > 1 else 0.0
+
+            per_class[label_int] = {
+                "mean": mean_drift,
+                "std": std_drift,
+                "num_proto": int(p.shape[0]),
+            }
+
+            per_client_drifts.extend(drift.tolist())
+            all_drifts.extend(drift.tolist())
+
+        client_drifts[client_id] = {
+            "mean": float(np.mean(per_client_drifts)) if per_client_drifts else 0.0,
+            "std": float(np.std(per_client_drifts)) if per_client_drifts else 0.0,
+            "per_class": per_class,
+        }
+
+    drift_stats = {
+        "proto_text_drift_mean": float(np.mean(all_drifts)) if all_drifts else 0.0,
+        "proto_text_drift_std": float(np.std(all_drifts)) if all_drifts else 0.0,
+        "proto_text_drift_max": float(np.max(all_drifts)) if all_drifts else 0.0,
+        "proto_text_drift_min": float(np.min(all_drifts)) if all_drifts else 0.0,
+        "client_drifts": client_drifts,
+    }
+
+    return drift_stats
+
+def log_drift_stats(drift_stats, save_path=None):
+    print(
+        "[DriftStats] "
+        f"mean={drift_stats['proto_text_drift_mean']:.6f}, "
+        f"std={drift_stats['proto_text_drift_std']:.6f}, "
+        f"min={drift_stats['proto_text_drift_min']:.6f}, "
+        f"max={drift_stats['proto_text_drift_max']:.6f}"
+    )
+
+    if save_path is not None:
+        save_jsonl(save_path, {"type": "drift_stats", "stats": drift_stats})
+
+def refine_uploaded_protos(uploaded_protos, text_anchors=None, method="none", **kwargs):
+    """
+    当前是占位函数。
+    后续可以在这里加入：
+    1. neighbor refinement
+    2. residual GCN
+    3. text-anchor graph refinement
+
+    现在 method='none' 时，不修改 uploaded_protos。
+    """
+    graph_metrics = {
+        "graph_refine_method": method,
+        "enabled": False,
+        "num_nodes": 0,
+        "num_edges": 0,
+        "message": "No graph refinement is applied.",
+    }
+
+    if method is None or method == "none":
+        return uploaded_protos, graph_metrics
+
+    raise NotImplementedError(
+        f"Graph refinement method '{method}' is not implemented yet."
+    )
+
+def log_graph_metrics(graph_metrics, save_path=None):
+    print(
+        "[GraphMetrics] "
+        f"method={graph_metrics.get('graph_refine_method')}, "
+        f"enabled={graph_metrics.get('enabled')}, "
+        f"nodes={graph_metrics.get('num_nodes')}, "
+        f"edges={graph_metrics.get('num_edges')}"
+    )
+
+    if save_path is not None:
+        save_jsonl(save_path, {"type": "graph_metrics", "stats": graph_metrics})
+
 
 def proto_aggregation(local_protos_list):
     agg_protos_label = defaultdict(list)
@@ -151,15 +326,47 @@ def calculate_fedts_weights(clients):
     weights = [1/len(clients) for c in clients]
     return weights
 
-
-def proto_initialization(clientObjs, server):
+def proto_initialization(clientObjs, server, args=None):
     uploaded_protos = receive_protos(clientObjs)
+
+    log_path = None
+    if args is not None:
+        log_path = (
+            f"./results/debug/"
+            f"{args.image_encoder_name}_{args.dataset}_sub{args.subset_size}_"
+            f"sra{args.sample_ratio}_sram{args.sample_ratio_method}_debug.jsonl"
+        )
+
+    # 1. 记录上传 prototype 的统计信息
+    log_uploaded_proto_stats(uploaded_protos, save_path=log_path)
+
+    # 2. 从 global head 中取 text anchors
+    text_anchors = get_text_anchors_from_global_head(server)
+
+    # 3. 计算 prototype-text drift
+    drift_stats = compute_proto_text_drift(uploaded_protos, text_anchors)
+    log_drift_stats(drift_stats, save_path=log_path)
+
+    # 4. 预留图校准入口。当前 method='none'，不做真正修改
+    uploaded_protos, graph_metrics = refine_uploaded_protos(
+        uploaded_protos,
+        text_anchors=text_anchors,
+        method="none",
+    )
+    log_graph_metrics(graph_metrics, save_path=log_path)
+
+    # 5. 构造 prototype training data
     # global_protos = proto_aggregation(uploaded_protos) # do not aggregate the protos !!!
     training_data = generate_protos_training_data(uploaded_protos)
-    global_adapter = server_adative_training(training_data, server)
+
+    # 6. 训练 global adapter
+    global_adapter, server_metrics = server_adative_training(training_data, server)
+
+    # 7. 下发 global adapter 和 global head
     clientObjs = send_adaptive_global_adapter(global_adapter, clientObjs)
     clientObjs = send_global_head(server.global_cls_head, clientObjs)
     server.image_encoder.global_adapter.load_state_dict(global_adapter.state_dict())
+
     return clientObjs, server
 
 def calculate_fedavg_weights(clients):
@@ -267,7 +474,7 @@ def run(args):
         clients[id].fine_tune(global_round=0)
 
     start_time = time.time()
-    clients, server = proto_initialization(clients, server)
+    clients, server = proto_initialization(clients, server, args=args)
     train_time = time.time() - start_time
     total_train_time += train_time
     print(f'train time cost: {train_time:.2f}s')
@@ -331,6 +538,7 @@ if __name__ == "__main__":
         args.device = torch.device('cpu')
 
     os.makedirs(f'./results/ours/', exist_ok=True)
+    os.makedirs(f'./results/debug/', exist_ok=True)
     with open(f'./results/ours/{args.image_encoder_name}_{args.dataset}_sub{args.subset_size}_sra{args.sample_ratio}_sram{args.sample_ratio_method}.json', 'w+') as f:
         json.dump(generate_json_config(args), f)
         f.write('\n')

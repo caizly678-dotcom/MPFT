@@ -1,0 +1,918 @@
+{
+  "client_id": 0,
+  "client_name": "Clipart",
+  "round": 0,
+  "epoch": 0,
+  "sample_method": "average",
+  "sample_ratio": 1.0,
+  "raw_feature_counts": {
+    "5": 130,
+    "46": 62,
+    "28": 39,
+    "19": 34,
+    "25": 110,
+    "38": 74,
+    "36": 51,
+    "29": 39,
+    "39": 162,
+    "32": 92,
+    "44": 94,
+    "15": 87,
+    "30": 137,
+    "8": 49,
+    "16": 65,
+    "2": 52,
+    "43": 58,
+    "18": 43,
+    "49": 90,
+    "47": 56,
+    "6": 45,
+    "24": 87,
+    "34": 95,
+    "45": 79,
+    "23": 69,
+    "21": 56,
+    "41": 108,
+    "22": 58,
+    "31": 187,
+    "20": 19,
+    "35": 93,
+    "3": 45,
+    "48": 26,
+    "7": 68,
+    "42": 37,
+    "13": 28,
+    "26": 113,
+    "9": 28,
+    "27": 76,
+    "0": 15,
+    "12": 18,
+    "4": 92,
+    "17": 57,
+    "37": 66,
+    "33": 59,
+    "40": 42,
+    "10": 27,
+    "14": 26,
+    "1": 41,
+    "11": 26
+  },
+  "sampled_prototype_counts": {
+    "5": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 130,
+      "raw_feature_count": 130,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "46": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 62,
+      "raw_feature_count": 62,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "28": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 39,
+      "raw_feature_count": 39,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "19": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 34,
+      "raw_feature_count": 34,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "25": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 110,
+      "raw_feature_count": 110,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "38": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 74,
+      "raw_feature_count": 74,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "36": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 51,
+      "raw_feature_count": 51,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "29": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 39,
+      "raw_feature_count": 39,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "39": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 162,
+      "raw_feature_count": 162,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "32": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 92,
+      "raw_feature_count": 92,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "44": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 94,
+      "raw_feature_count": 94,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "15": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 87,
+      "raw_feature_count": 87,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "30": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 137,
+      "raw_feature_count": 137,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "8": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 49,
+      "raw_feature_count": 49,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "16": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 65,
+      "raw_feature_count": 65,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "2": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 52,
+      "raw_feature_count": 52,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "43": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 58,
+      "raw_feature_count": 58,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "18": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 43,
+      "raw_feature_count": 43,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "49": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 90,
+      "raw_feature_count": 90,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "47": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 56,
+      "raw_feature_count": 56,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "6": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 45,
+      "raw_feature_count": 45,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "24": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 87,
+      "raw_feature_count": 87,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "34": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 95,
+      "raw_feature_count": 95,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "45": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 79,
+      "raw_feature_count": 79,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "23": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 69,
+      "raw_feature_count": 69,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "21": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 56,
+      "raw_feature_count": 56,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "41": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 108,
+      "raw_feature_count": 108,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "22": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 58,
+      "raw_feature_count": 58,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "31": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 187,
+      "raw_feature_count": 187,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "20": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 19,
+      "raw_feature_count": 19,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "35": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 93,
+      "raw_feature_count": 93,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "3": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 45,
+      "raw_feature_count": 45,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "48": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 26,
+      "raw_feature_count": 26,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "7": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 68,
+      "raw_feature_count": 68,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "42": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 37,
+      "raw_feature_count": 37,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "13": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 28,
+      "raw_feature_count": 28,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "26": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 113,
+      "raw_feature_count": 113,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "9": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 28,
+      "raw_feature_count": 28,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "27": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 76,
+      "raw_feature_count": 76,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "0": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 15,
+      "raw_feature_count": 15,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "12": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 18,
+      "raw_feature_count": 18,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "4": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 92,
+      "raw_feature_count": 92,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "17": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 57,
+      "raw_feature_count": 57,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "37": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 66,
+      "raw_feature_count": 66,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "33": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 59,
+      "raw_feature_count": 59,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "40": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 42,
+      "raw_feature_count": 42,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "10": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 27,
+      "raw_feature_count": 27,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "14": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 26,
+      "raw_feature_count": 26,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "1": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 41,
+      "raw_feature_count": 41,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    },
+    "11": {
+      "method": "average",
+      "sample_method": "average",
+      "sample_ratio": 1.0,
+      "raw_count": 26,
+      "raw_feature_count": 26,
+      "sampled_count": 1,
+      "final_prototype_count": 1,
+      "cluster_num": null
+    }
+  },
+  "uploaded_prototype_counts": {
+    "5": 1,
+    "46": 1,
+    "28": 1,
+    "19": 1,
+    "25": 1,
+    "38": 1,
+    "36": 1,
+    "29": 1,
+    "39": 1,
+    "32": 1,
+    "44": 1,
+    "15": 1,
+    "30": 1,
+    "8": 1,
+    "16": 1,
+    "2": 1,
+    "43": 1,
+    "18": 1,
+    "49": 1,
+    "47": 1,
+    "6": 1,
+    "24": 1,
+    "34": 1,
+    "45": 1,
+    "23": 1,
+    "21": 1,
+    "41": 1,
+    "22": 1,
+    "31": 1,
+    "20": 1,
+    "35": 1,
+    "3": 1,
+    "48": 1,
+    "7": 1,
+    "42": 1,
+    "13": 1,
+    "26": 1,
+    "9": 1,
+    "27": 1,
+    "0": 1,
+    "12": 1,
+    "4": 1,
+    "17": 1,
+    "37": 1,
+    "33": 1,
+    "40": 1,
+    "10": 1,
+    "14": 1,
+    "1": 1,
+    "11": 1
+  },
+  "total_uploaded_prototypes": 50,
+  "prototype_norms": {
+    "5": {
+      "values": [
+        8.258207
+      ],
+      "mean": 8.258207
+    },
+    "46": {
+      "values": [
+        8.779007
+      ],
+      "mean": 8.779007
+    },
+    "28": {
+      "values": [
+        7.431376
+      ],
+      "mean": 7.431376
+    },
+    "19": {
+      "values": [
+        9.625991
+      ],
+      "mean": 9.625991
+    },
+    "25": {
+      "values": [
+        8.129649
+      ],
+      "mean": 8.129649
+    },
+    "38": {
+      "values": [
+        7.567347
+      ],
+      "mean": 7.567347
+    },
+    "36": {
+      "values": [
+        7.521454
+      ],
+      "mean": 7.521454
+    },
+    "29": {
+      "values": [
+        8.287234
+      ],
+      "mean": 8.287234
+    },
+    "39": {
+      "values": [
+        6.401257
+      ],
+      "mean": 6.401257
+    },
+    "32": {
+      "values": [
+        9.044262
+      ],
+      "mean": 9.044262
+    },
+    "44": {
+      "values": [
+        7.705892
+      ],
+      "mean": 7.705892
+    },
+    "15": {
+      "values": [
+        8.313796
+      ],
+      "mean": 8.313796
+    },
+    "30": {
+      "values": [
+        7.182116
+      ],
+      "mean": 7.182116
+    },
+    "8": {
+      "values": [
+        8.69898
+      ],
+      "mean": 8.69898
+    },
+    "16": {
+      "values": [
+        9.115986
+      ],
+      "mean": 9.115986
+    },
+    "2": {
+      "values": [
+        8.595028
+      ],
+      "mean": 8.595028
+    },
+    "43": {
+      "values": [
+        8.395329
+      ],
+      "mean": 8.395329
+    },
+    "18": {
+      "values": [
+        8.630933
+      ],
+      "mean": 8.630933
+    },
+    "49": {
+      "values": [
+        8.899167
+      ],
+      "mean": 8.899167
+    },
+    "47": {
+      "values": [
+        9.293427
+      ],
+      "mean": 9.293427
+    },
+    "6": {
+      "values": [
+        8.274765
+      ],
+      "mean": 8.274765
+    },
+    "24": {
+      "values": [
+        7.814415
+      ],
+      "mean": 7.814415
+    },
+    "34": {
+      "values": [
+        7.615593
+      ],
+      "mean": 7.615593
+    },
+    "45": {
+      "values": [
+        7.941039
+      ],
+      "mean": 7.941039
+    },
+    "23": {
+      "values": [
+        8.349537
+      ],
+      "mean": 8.349537
+    },
+    "21": {
+      "values": [
+        8.360386
+      ],
+      "mean": 8.360386
+    },
+    "41": {
+      "values": [
+        7.826332
+      ],
+      "mean": 7.826332
+    },
+    "22": {
+      "values": [
+        8.689605
+      ],
+      "mean": 8.689605
+    },
+    "31": {
+      "values": [
+        7.897564
+      ],
+      "mean": 7.897564
+    },
+    "20": {
+      "values": [
+        9.440408
+      ],
+      "mean": 9.440408
+    },
+    "35": {
+      "values": [
+        8.675476
+      ],
+      "mean": 8.675476
+    },
+    "3": {
+      "values": [
+        9.067744
+      ],
+      "mean": 9.067744
+    },
+    "48": {
+      "values": [
+        8.443323
+      ],
+      "mean": 8.443323
+    },
+    "7": {
+      "values": [
+        7.594219
+      ],
+      "mean": 7.594219
+    },
+    "42": {
+      "values": [
+        6.942282
+      ],
+      "mean": 6.942282
+    },
+    "13": {
+      "values": [
+        7.971942
+      ],
+      "mean": 7.971942
+    },
+    "26": {
+      "values": [
+        8.964486
+      ],
+      "mean": 8.964486
+    },
+    "9": {
+      "values": [
+        7.326412
+      ],
+      "mean": 7.326412
+    },
+    "27": {
+      "values": [
+        6.742308
+      ],
+      "mean": 6.742308
+    },
+    "0": {
+      "values": [
+        8.374146
+      ],
+      "mean": 8.374146
+    },
+    "12": {
+      "values": [
+        7.627927
+      ],
+      "mean": 7.627927
+    },
+    "4": {
+      "values": [
+        8.217822
+      ],
+      "mean": 8.217822
+    },
+    "17": {
+      "values": [
+        8.143493
+      ],
+      "mean": 8.143493
+    },
+    "37": {
+      "values": [
+        6.433879
+      ],
+      "mean": 6.433879
+    },
+    "33": {
+      "values": [
+        7.804605
+      ],
+      "mean": 7.804605
+    },
+    "40": {
+      "values": [
+        8.751215
+      ],
+      "mean": 8.751215
+    },
+    "10": {
+      "values": [
+        8.000019
+      ],
+      "mean": 8.000019
+    },
+    "14": {
+      "values": [
+        7.976493
+      ],
+      "mean": 7.976493
+    },
+    "1": {
+      "values": [
+        8.632211
+      ],
+      "mean": 8.632211
+    },
+    "11": {
+      "values": [
+        7.385493
+      ],
+      "mean": 7.385493
+    }
+  },
+  "prototype_save_path": "./results/prototypes/ViT-B-32_domainnet_sub50_sra1.0_sramaverage/client_0_Clipart_round_0_epoch_0.pth"
+}

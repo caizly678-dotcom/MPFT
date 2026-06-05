@@ -19,6 +19,7 @@ zip_url_dict = {
 
 class BaseDomainNetDataset(Dataset):
     def __init__(self, root_dir, domain, split='train', transform=None):
+        root_dir = "/workspace/FedPHA/DATA/DomainNet"
         self.root_dir = root_dir
         self.transform = transform
         self.domain = domain

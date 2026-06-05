@@ -41,6 +41,8 @@ class Server(torch.nn.Module):
         self.pretrained_model.eval()
         self.pretrained_model.to(self.device)
 
+
+
         with torch.no_grad():
             zeroshot_weights = []
             for classname in tqdm(dataObject.classnames):
@@ -69,6 +71,11 @@ class Server(torch.nn.Module):
 
     def generate_global_cls_head(self, cls_heads):
         global_cls_head = copy.deepcopy(cls_heads[0])
+
+        self.text_anchors = torch.nn.functional.normalize(
+            self.global_cls_head.weight.detach().clone(),
+            dim=-1
+        )
         for param in global_cls_head.parameters():
             param.data.zero_()
         for cls_head in cls_heads:
